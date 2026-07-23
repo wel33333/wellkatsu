@@ -1,116 +1,99 @@
-// ==========================
-// ウエル活マスター Ver2.0
-// ==========================
+// ウエル活マスター Ver3.0
 
 let items = JSON.parse(localStorage.getItem("items")) || [];
 
-function save() {
+function saveItems() {
     localStorage.setItem("items", JSON.stringify(items));
 }
 
 function addItem() {
 
-    const name = prompt("商品名");
+    const name = prompt("商品名を入力してください");
     if (!name) return;
 
-    const price = Number(prompt("価格"));
-    if (!price) return;
+    const price = Number(prompt("価格を入力してください"));
+    if (price <= 0) return;
 
     const qty = Number(prompt("数量", "1")) || 1;
 
     items.push({
-        name,
-        price,
-        qty
+        name: name,
+        price: price,
+        qty: qty
     });
 
-    save();
+    saveItems();
     render();
+
 }
 
 function removeItem(index) {
 
-    if (confirm("削除しますか？")) {
+    if (!confirm("削除しますか？")) return;
 
-        items.splice(index,1);
+    items.splice(index, 1);
 
-        save();
-
-        render();
-
-    }
-
-}
-
-function plus(index){
-
-    items[index].qty++;
-
-    save();
+    saveItems();
 
     render();
 
 }
 
-function minus(index){
+function plus(index) {
 
-    if(items[index].qty>1){
+    items[index].qty++;
+
+    saveItems();
+
+    render();
+
+}
+
+function minus(index) {
+
+    if (items[index].qty > 1) {
 
         items[index].qty--;
 
-    }else{
+    } else {
 
         removeItem(index);
-
         return;
 
     }
 
-    save();
+    saveItems();
 
     render();
 
 }
 
-function render(){
+function render() {
 
-    let total=0;
+    const list = document.getElementById("itemList");
 
-    const list=document.getElementById("itemList");
+    let total = 0;
 
-    if(items.length===0){
+    if (items.length === 0) {
 
-        list.innerHTML="商品はありません";
+        list.innerHTML = "商品はありません";
 
-    }else{
+    } else {
 
-        list.innerHTML="";
+        list.innerHTML = "";
 
-        items.forEach((item,index)=>{
+        items.forEach((item, index) => {
 
-            total+=item.price*item.qty;
+            total += item.price * item.qty;
 
-            list.innerHTML+=`
-            <div style="
-            border:1px solid #ddd;
-            border-radius:10px;
-            padding:10px;
-            margin-bottom:10px;">
+            list.innerHTML += `
+            <div class="item">
+                <h3>${item.name}</h3>
+                <p>${item.price.toLocaleString()}円 × ${item.qty}</p>
 
-            <b>${item.name}</b><br>
-
-            ${item.price.toLocaleString()}円 × ${item.qty}
-
-            <br><br>
-
-            <button onclick="minus(${index})">－</button>
-
-            <button onclick="plus(${index})">＋</button>
-
-            <button onclick="removeItem(${index})">
-            🗑削除
-            </button>
-
+                <button onclick="minus(${index})">－</button>
+                <button onclick="plus(${index})">＋</button>
+                <button onclick="removeItem(${index})">🗑 削除</button>
             </div>
             `;
 
@@ -118,36 +101,29 @@ function render(){
 
     }
 
-    document.getElementById("totalPrice").textContent=
-    total.toLocaleString()+"円";
+    document.getElementById("totalPrice").textContent =
+        total.toLocaleString() + "円";
 
-    const target=Math.ceil((total+1)/10000)*10000;
+    const next = Math.ceil((total + 1) / 10000) * 10000;
 
-    document.getElementById("nextTarget").textContent=
-    "あと"+(target-total).toLocaleString()+"円で"+
-    target.toLocaleString()+"円！";
+    document.getElementById("nextTarget").textContent =
+        "あと" + (next - total).toLocaleString() +
+        "円で" + next.toLocaleString() + "円！";
 
-    //----------------------
-    // PayPayおすすめ
-    //----------------------
+    const paypay = Math.round(total * 0.665);
 
-    const paypay=Math.round(total*0.665);
+    document.getElementById("paypay").textContent =
+        paypay.toLocaleString() + "円";
 
-    document.getElementById("paypay").textContent=
-    paypay.toLocaleString()+"円";
+    const waon = Math.ceil((total - paypay) / 1.5);
 
-    const waon=Math.ceil((total-paypay)/1.5);
+    document.getElementById("waon").textContent =
+        waon.toLocaleString() + "pt";
 
-    document.getElementById("waon").textContent=
-    waon.toLocaleString()+"pt";
-
-    document.getElementById("reward").textContent=
-    "0pt";
+    document.getElementById("reward").textContent = "0pt";
 
 }
 
-document
-.getElementById("addButton")
-.onclick=addItem;
+document.getElementById("addButton").addEventListener("click", addItem);
 
 render();
