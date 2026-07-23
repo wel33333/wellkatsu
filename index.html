@@ -1,70 +1,167 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ウエル活マスター</title>
 
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <header>
+
 <h1>🛒 ウエル活マスター</h1>
+
 <p>毎月のウエル活をもっとお得に！</p>
+
 </header>
 
-<main>
+<div class="container">
 
-<section class="card">
+<div class="card">
+
 <h2>💰 合計金額</h2>
 
-<div id="totalPrice">
-0円
-</div>
+<h1 id="totalPrice">0円</h1>
 
 <p id="nextTarget">
-あと10,000円で10,000円達成！
-</p>
-</section>
 
-<section class="card">
+あと10,000円で10,000円！
+
+</p>
+
+</div>
+
+<div class="card">
+
 <h2>🛍 商品一覧</h2>
 
 <div id="itemList">
+
 商品はありません
+
 </div>
 
-<button id="addButton">
+<button
+id="addButton"
+class="green">
+
 ＋ 商品追加
+
 </button>
 
-</section>
+</div>
 
-<section class="card">
+<div class="card">
 
 <h2>💳 おすすめ支払い</h2>
+<p>
+PayPay：
+<span id="paypay">0円</span>
+</p>
 
-<p>PayPay：<span id="paypay">0円</span></p>
+<p>
+WAON POINT：
+<span id="waon">0pt</span>
+</p>
 
-<p>WAON POINT：<span id="waon">0pt</span></p>
+<p>
+PayPay還元：
+<span id="reward">0pt</span>
+</p>
 
-<p>PayPay還元：<span id="reward">0pt</span></p>
+</div>
 
-</section>
-
-<section class="card">
+<div class="card">
 
 <h2>🎁 レシチャレ</h2>
 
-<p>還元額：<span id="cashback">0円</span></p>
+<p>
+還元額
+</p>
 
-</section>
+<input
+id="cashback"
+type="number"
+placeholder="還元額を入力">
 
-</main>
+<p>
+
+現在
+
+<span id="cashbackTotal">
+
+0円
+
+</span>
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>⚙️ PayPay設定</h2>
+
+<label>
+
+還元率(%)
+
+</label>
+
+<input
+id="couponRate"
+type="number"
+value="20">
+
+<label>
+
+還元上限(pt)
+
+</label>
+
+<input
+id="couponMax"
+type="number"
+value="1000">
+
+<label>
+
+PayPay割合(%)
+
+</label>
+
+<input
+id="paypayLimit"
+type="number"
+value="66.5">
+
+</div>
+<div class="card">
+
+<h2>📊 買い物結果</h2>
+
+<p>
+商品数：
+<span id="itemCount">0</span>
+</p>
+
+<p>
+実質負担：
+<span id="realCost">0円</span>
+</p>
+
+</div>
+
+</div>
 
 <script src="app.js"></script>
 
 </body>
 </html>
+
