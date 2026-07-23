@@ -128,12 +128,31 @@ ${item.paypay ? " 💳PayPay" : ""}
         "あと" + (next - total).toLocaleString() +
         "円で" + next.toLocaleString() + "円！";
 
-    const paypay = Math.round(total * 0.665);
+    const const couponRate =
+    Number(document.getElementById("couponRate").value) || 20;
+
+const couponMax =
+    Number(document.getElementById("couponMax").value) || 1000;
+
+const paypayLimit =
+    Number(document.getElementById("paypayLimit").value) || 66.5;
+
+const maxPayPay =
+    Math.floor(couponMax / (couponRate / 100));
+
+const recommendedPayPay =
+    Math.min(
+        Math.round(total * paypayLimit / 100),
+        maxPayPay
+    );
+
+const paypay = recommendedPayPay;
 
     document.getElementById("paypay").textContent =
         paypay.toLocaleString() + "円";
 
-    const waon = Math.ceil((total - paypay) / 1.5);
+    const waon =
+    Math.ceil((total - recommendedPayPay) / 1.5);
 
     document.getElementById("waon").textContent =
         waon.toLocaleString() + "pt";
