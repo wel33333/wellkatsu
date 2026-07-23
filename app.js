@@ -27,6 +27,7 @@ function addItem() {
 
 }
 
+
 function removeItem(index) {
 
     if (!confirm("削除しますか？")) return;
@@ -89,7 +90,19 @@ function render() {
             list.innerHTML += `
             <div class="item">
                 <h3>${item.name}</h3>
-                <p>${item.price.toLocaleString()}円 × ${item.qty}</p>
+
+<small>${item.barcode}</small>
+                <p>
+
+${item.price.toLocaleString()}円 × ${item.qty}
+
+<br>
+
+${item.recipe ? "🎁レシチャレ" : ""}
+
+${item.paypay ? " 💳PayPay" : ""}
+
+</p>
 
                 <button onclick="minus(${index})">－</button>
                 <button onclick="plus(${index})">＋</button>
