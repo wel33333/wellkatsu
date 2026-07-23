@@ -140,3 +140,70 @@ ${item.paypay ? " 💳PayPay" : ""}
 document.getElementById("addButton").addEventListener("click", addItem);
 
 render();
+let scanner;
+
+function startScanner(){
+
+    document.getElementById("barcodeResult").textContent="カメラ起動中...";
+
+    scanner=new Html5Qrcode("reader");
+
+    scanner.start(
+
+        { facingMode:"environment" },
+
+        {
+
+            fps:10,
+
+            qrbox:250
+
+        },
+
+        function(decodedText){
+
+            document.getElementById("barcodeResult").textContent=decodedText;
+
+            scanner.stop();
+
+            addBarcode(decodedText);
+
+        },
+
+        function(){}
+
+    );function addBarcode(code){
+
+    const name=prompt("商品名");
+
+    if(!name)return;
+
+    const price=Number(prompt("価格"));
+
+    if(price<=0)return;
+
+    items.push({
+
+        name:name,
+
+        barcode:code,
+
+        price:price,
+
+        qty:1,
+
+        recipe:false,
+
+        paypay:false
+
+    });
+
+    saveItems();
+
+    render();
+
+}
+    
+    
+
+}
