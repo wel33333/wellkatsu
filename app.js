@@ -179,7 +179,15 @@ function startScanner(){
 
     );function addBarcode(code){
 
-    if(productDB[code]){
+   if(productDB[code]){
+
+    const index = items.findIndex(item => item.barcode === code);
+
+    if(index >= 0){
+
+        items[index].qty++;
+
+    }else{
 
         const p = productDB[code];
 
@@ -199,13 +207,16 @@ function startScanner(){
 
         });
 
-        saveItems();
+    }
 
-        render();
+    saveItems();
 
-        alert("登録済み商品を追加しました");
+    render();
 
-        return;
+    return;
+
+}
+
 
     }
 
