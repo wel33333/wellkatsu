@@ -76,3 +76,29 @@ button:active{
     margin:5px 0 20px;
 
 }
+
+.big-paypay{
+
+    font-size:42px;
+
+    font-weight:bold;
+
+    color:#e60012;
+
+    text-align:center;
+
+    margin:20px 0;
+
+}
+
+.big-waon{
+
+    font-size:36px;
+
+    font-weight:bold;
+
+    color:#00843D;
+
+    text-align:center;
+
+}
