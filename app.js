@@ -1,424 +1,268 @@
-// ===== 設定 =====
+// ============================
+// ウエル活マスター Ver4.0
+// ============================
+
+// 商品一覧
+let items = JSON.parse(localStorage.getItem("items")) || [];
+
+// 商品マスター
+let productDB = JSON.parse(localStorage.getItem("productDB")) || {};
+
+// 設定
 let settings = JSON.parse(localStorage.getItem("settings")) || {
     couponRate: 20,
     couponMax: 1000,
     paypayLimit: 66.5
 };
 
-let productDB = JSON.parse(localStorage.getItem("productDB")) || {};
-// ウエル活マスター Ver3.0
-
-let items = JSON.parse(localStorage.getItem("items")) || [];
-
-function saveItems() {
-
+// 保存
+function saveAll() {
     localStorage.setItem("items", JSON.stringify(items));
-
     localStorage.setItem("productDB", JSON.stringify(productDB));
-
+    localStorage.setItem("settings", JSON.stringify(settings));
 }
 
+// 商品追加
 function addItem() {
 
-    const name = prompt("商品名を入力してください");
+    const name = prompt("商品名");
     if (!name) return;
 
-    const price = Number(prompt("価格を入力してください"));
+    const price = Number(prompt("価格"));
     if (price <= 0) return;
 
     const qty = Number(prompt("数量", "1")) || 1;
 
     items.push({
-        name: name,
-        price: price,
-        qty: qty
+        name,
+        barcode: "",
+        price,
+        qty,
+        recipe: false,
+        paypay: false,
+        cashback: 0
     });
 
-    saveItems();
+    saveAll();
+    render();
+}
+
+// 削除
+function removeItem(index){
+
+    if(!confirm("削除しますか？")) return;
+
+    items.splice(index,1);
+
+    saveAll();
+
     render();
 
 }
 
-
-function removeItem(index) {
-
-    if (!confirm("削除しますか？")) return;
-
-    items.splice(index, 1);
-
-    saveItems();
-
-    render();
-
-}
-
-function plus(index) {
+// 数量＋
+function plus(index){
 
     items[index].qty++;
 
-    saveItems();
+    saveAll();
 
     render();
 
 }
 
-function minus(index) {
+// 数量－
+function minus(index){
 
-    if (items[index].qty > 1) {
+    if(items[index].qty>1){
 
         items[index].qty--;
 
-    } else {
+    }else{
 
         removeItem(index);
-        return;
 
     }
 
-    saveItems();
+    saveAll();
 
     render();
 
 }
+// ============================
+// 画面更新
+// ============================
 
-function render() {
+function render(){
 
     const list = document.getElementById("itemList");
 
     let total = 0;
 
-    if (items.length === 0) {
+    list.innerHTML = "";
+
+    if(items.length===0){
 
         list.innerHTML = "商品はありません";
 
-    } else {
-
-        list.innerHTML = "";
-
-        items.forEach((item, index) => {
-
-            total += item.price * item.qty;
-
-            list.innerHTML += `
-            <div class="item">
-                <h3>${item.name}</h3>
-
-<small>${item.barcode}</small>
-                <p>
-
-${item.price.toLocaleString()}円 × ${item.qty}
-
-<br>
-
-${item.recipe ? "🎁レシチャレ" : ""}
-
-${item.paypay ? " 💳PayPay" : ""}
-
-</p>
-
-                <button onclick="minus(${index})">－</button>
-                <button onclick="plus(${index})">＋</button>
-                <button onclick="removeItem(${index})">🗑 削除</button>
-<br><br>
-
-<label>レシチャレ還元</label>
-
-<input
-type="number"
-value="${item.cashback}"
-onchange="updateCashback(${index}, this.value)"
-style="width:90px;"> pt
-                
-            </div>
-            `;
-
-        });
-
     }
+
+    items.forEach((item,index)=>{
+
+        total += item.price * item.qty;
+
+        list.innerHTML += `
+        <div class="item">
+
+            <h3>${item.name}</h3>
+
+            <small>${item.barcode || ""}</small>
+
+            <p>${item.price.toLocaleString()}円 × ${item.qty}</p>
+
+            <button onclick="minus(${index})">－</button>
+
+            <button onclick="plus(${index})">＋</button>
+
+            <button onclick="removeItem(${index})">🗑 削除</button>
+
+        </div>
+        `;
+
+    });
 
     document.getElementById("totalPrice").textContent =
         total.toLocaleString() + "円";
 
     const next = Math.ceil((total + 1) / 10000) * 10000;
 
-    document.getElementById("nextTarget").textContent =
-        "あと" + (next - total).toLocaleString() +
-        "円で" + next.toLocaleString() + "円！";
+document.getElementById("nextTarget").textContent =
+    "あと" +
+    (next-total).toLocaleString() +
+    "円で" +
+    next.toLocaleString() +
+    "円！";
 
-    const const couponRate =
-    Number(document.getElementById("couponRate").value) || 20;
+calculatePayment(total);
 
-const couponMax =
-    Number(document.getElementById("couponMax").value) || 1000;
+}
+        
+// ============================
+// PayPay・WAON計算
+// ============================
 
-const paypayLimit =
-    Number(document.getElementById("paypayLimit").value) || 66.5;
+function calculatePayment(total){
 
-const maxPayPay =
-    Math.floor(couponMax / (couponRate / 100));
+    settings.couponRate =
+        Number(document.getElementById("couponRate")?.value) || settings.couponRate;
 
-const recommendedPayPay =
-    Math.min(
-        Math.round(total * paypayLimit / 100),
+    settings.couponMax =
+        Number(document.getElementById("couponMax")?.value) || settings.couponMax;
+
+    settings.paypayLimit =
+        Number(document.getElementById("paypayLimit")?.value) || settings.paypayLimit;
+
+    saveAll();
+
+    const maxPayPay =
+        Math.floor(settings.couponMax / (settings.couponRate / 100));
+
+    const paypay = Math.min(
+        Math.round(total * settings.paypayLimit / 100),
         maxPayPay
     );
 
-const paypay = recommendedPayPay;
-
-    document.getElementById("paypay").textContent =
-        paypay.toLocaleString() + "円";
-
     const waon =
-    Math.ceil((total - recommendedPayPay) / 1.5);
+        Math.ceil((total - paypay) / 1.5);
 
-    document.getElementById("waon").textContent =
-        waon.toLocaleString() + "pt";
+    const reward =
+        Math.min(
+            Math.floor(paypay * settings.couponRate / 100),
+            settings.couponMax
+        );
 
-    document.getElementById("reward").textContent = "0pt";
-let cashbackTotal = 0;
+    const paypayEl = document.getElementById("paypay");
+    if(paypayEl) paypayEl.textContent = paypay.toLocaleString()+"円";
 
-items.forEach(item=>{
+    const waonEl = document.getElementById("waon");
+    if(waonEl) waonEl.textContent = waon.toLocaleString()+"pt";
 
-    if(item.recipe){
+    const rewardEl = document.getElementById("reward");
+    if(rewardEl) rewardEl.textContent = reward.toLocaleString()+"pt";
 
-        cashbackTotal += item.cashback * item.qty;
-
-    }
-
-});
-
-document.getElementById("cashbackTotal").textContent =
-    cashbackTotal.toLocaleString() + "pt";
 }
 
-document.getElementById("addButton").addEventListener("click", addItem);
+// ============================
+// バーコード商品追加
+// ============================
 
-render();
-let scanner;
+function addBarcode(code){
 
-document.getElementById("checkoutTotal").textContent =
-    total.toLocaleString() + "円";
-
-document.getElementById("checkoutPayPay").textContent =
-    paypay.toLocaleString() + "円";
-
-document.getElementById("checkoutWaon").textContent =
-    waon.toLocaleString() + "pt";
-
-const reward = Math.min(
-    Math.floor(paypay * 0.20),
-    1000
-);
-
-document.getElementById("checkoutReward").textContent =
-    reward.toLocaleString() + "pt";
-
-document.getElementById("checkoutNext").textContent =
-    (next - total).toLocaleString() + "円";
-
-function startScanner(){
-
-    document.getElementById("barcodeResult").textContent="カメラ起動中...";
-
-    scanner=new Html5Qrcode("reader");
-
-    scanner.start(
-
-        { facingMode:"environment" },
-
-        {
-
-            fps:10,
-
-            qrbox:250
-
-        },
-
-        function(decodedText){
-
-            document.getElementById("barcodeResult").textContent=decodedText;
-
-            scanner.stop();
-
-            addBarcode(decodedText);
-
-        },
-
-        function(){}
-
-    );function addBarcode(code){
-
-   if(productDB[code]){
-
+    // 登録済み商品なら数量だけ増やす
     const index = items.findIndex(item => item.barcode === code);
 
     if(index >= 0){
 
         items[index].qty++;
 
-    }else{
+        saveAll();
+
+        render();
+
+        return;
+    }
+
+    // 商品マスターに登録済みなら追加
+    if(productDB[code]){
 
         const p = productDB[code];
 
         items.push({
-
-            name:p.name,
-
-            barcode:code,
-
-            price:p.price,
-
-            qty:1,
-
-            recipe:p.recipe,
-
-            paypay:p.paypay
-
+            name: p.name,
+            barcode: code,
+            price: p.price,
+            qty: 1,
+            recipe: p.recipe,
+            paypay: p.paypay,
+            cashback: p.cashback || 0
         });
 
+        saveAll();
+
+        render();
+
+        return;
     }
 
-    saveItems();
-
-    render();
-
-    return;
-
-}
-
-
-    }
-
+    // 初めての商品
     const name = prompt("商品名");
-
     if(!name) return;
 
     const price = Number(prompt("価格"));
+    if(price <= 0) return;
 
-    if(price<=0) return;
+    const recipe = confirm("レシチャレ対象ですか？");
+    const paypay = confirm("PayPay対象ですか？");
 
-    const recipe = confirm("レシチャレ対象？");
-
-    const paypay = confirm("PayPay対象？");
-
-    productDB[code]={
-
+    productDB[code] = {
         name,
-
         price,
-
         recipe,
-
-        paypay
-
+        paypay,
+        cashback: 0
     };
 
     items.push({
+        name,
+        barcode: code,
+        price,
+        qty: 1,
+        recipe,
+        paypay,
+        cashback: 0
+    });
 
-            name:p.name,
-
-            barcode:code,
-
-            price:p.price,
-
-            qty:1,
-
-            recipe:p.recipe,
-
-            paypay:p.paypay
-
-        });
-
-    saveItems();
-function saveSettings() {
-
-    settings.couponRate =
-        Number(document.getElementById("couponRate").value);
-
-    settings.couponMax =
-        Number(document.getElementById("couponMax").value);
-
-    settings.paypayLimit =
-        Number(document.getElementById("paypayLimit").value);
-
-    localStorage.setItem(
-        "settings",
-        JSON.stringify(settings)
-    );
-
-    render();
-
-}
-    render();
-
-}
-
-
-}
-    
-    
-
-}
-document.getElementById("couponRate").value =
-    settings.couponRate;
-
-document.getElementById("couponMax").value =
-    settings.couponMax;
-
-document.getElementById("paypayLimit").value =
-    settings.paypayLimit;
-
-document.getElementById("couponRate")
-    .addEventListener("change", saveSettings);
-
-document.getElementById("couponMax")
-    .addEventListener("change", saveSettings);
-
-document.getElementById("paypayLimit")
-    .addEventListener("change", saveSettings);
-
-document
-.getElementById("couponPreset")
-.addEventListener("change", function(){
-
-    switch(this.value){
-
-        case "20-1000":
-
-            settings.couponRate = 20;
-            settings.couponMax = 1000;
-            break;
-
-        case "10-500":
-
-            settings.couponRate = 10;
-            settings.couponMax = 500;
-            break;
-
-        case "5-300":
-
-            settings.couponRate = 5;
-            settings.couponMax = 300;
-            break;
-
-        default:
-
-            return;
-
-    }
-
-    document.getElementById("couponRate").value=settings.couponRate;
-    document.getElementById("couponMax").value=settings.couponMax;
-
-    saveSettings();
-
-});
-
-function updateCashback(index, value){
-
-    items[index].cashback = Number(value) || 0;
-
-    saveItems();
+    saveAll();
 
     render();
 
