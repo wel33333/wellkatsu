@@ -147,6 +147,26 @@ document.getElementById("addButton").addEventListener("click", addItem);
 render();
 let scanner;
 
+document.getElementById("checkoutTotal").textContent =
+    total.toLocaleString() + "円";
+
+document.getElementById("checkoutPayPay").textContent =
+    paypay.toLocaleString() + "円";
+
+document.getElementById("checkoutWaon").textContent =
+    waon.toLocaleString() + "pt";
+
+const reward = Math.min(
+    Math.floor(paypay * 0.20),
+    1000
+);
+
+document.getElementById("checkoutReward").textContent =
+    reward.toLocaleString() + "pt";
+
+document.getElementById("checkoutNext").textContent =
+    (next - total).toLocaleString() + "円";
+
 function startScanner(){
 
     document.getElementById("barcodeResult").textContent="カメラ起動中...";
