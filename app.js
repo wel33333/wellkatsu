@@ -353,3 +353,40 @@ document.getElementById("couponMax")
 
 document.getElementById("paypayLimit")
     .addEventListener("change", saveSettings);
+
+document
+.getElementById("couponPreset")
+.addEventListener("change", function(){
+
+    switch(this.value){
+
+        case "20-1000":
+
+            settings.couponRate = 20;
+            settings.couponMax = 1000;
+            break;
+
+        case "10-500":
+
+            settings.couponRate = 10;
+            settings.couponMax = 500;
+            break;
+
+        case "5-300":
+
+            settings.couponRate = 5;
+            settings.couponMax = 300;
+            break;
+
+        default:
+
+            return;
+
+    }
+
+    document.getElementById("couponRate").value=settings.couponRate;
+    document.getElementById("couponMax").value=settings.couponMax;
+
+    saveSettings();
+
+});
