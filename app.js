@@ -1,3 +1,10 @@
+// ===== 設定 =====
+let settings = JSON.parse(localStorage.getItem("settings")) || {
+    couponRate: 20,
+    couponMax: 1000,
+    paypayLimit: 66.5
+};
+
 let productDB = JSON.parse(localStorage.getItem("productDB")) || {};
 // ウエル活マスター Ver3.0
 
@@ -300,7 +307,25 @@ function startScanner(){
     });
 
     saveItems();
+function saveSettings() {
 
+    settings.couponRate =
+        Number(document.getElementById("couponRate").value);
+
+    settings.couponMax =
+        Number(document.getElementById("couponMax").value);
+
+    settings.paypayLimit =
+        Number(document.getElementById("paypayLimit").value);
+
+    localStorage.setItem(
+        "settings",
+        JSON.stringify(settings)
+    );
+
+    render();
+
+}
     render();
 
 }
@@ -311,3 +336,20 @@ function startScanner(){
     
 
 }
+document.getElementById("couponRate").value =
+    settings.couponRate;
+
+document.getElementById("couponMax").value =
+    settings.couponMax;
+
+document.getElementById("paypayLimit").value =
+    settings.paypayLimit;
+
+document.getElementById("couponRate")
+    .addEventListener("change", saveSettings);
+
+document.getElementById("couponMax")
+    .addEventListener("change", saveSettings);
+
+document.getElementById("paypayLimit")
+    .addEventListener("change", saveSettings);
