@@ -1,9 +1,14 @@
+let productDB = JSON.parse(localStorage.getItem("productDB")) || {};
 // ウエル活マスター Ver3.0
 
 let items = JSON.parse(localStorage.getItem("items")) || [];
 
 function saveItems() {
+
     localStorage.setItem("items", JSON.stringify(items));
+
+    localStorage.setItem("productDB", JSON.stringify(productDB));
+
 }
 
 function addItem() {
@@ -174,33 +179,82 @@ function startScanner(){
 
     );function addBarcode(code){
 
-    const name=prompt("商品名");
+    if(productDB[code]){
 
-    if(!name)return;
+        const p = productDB[code];
 
-    const price=Number(prompt("価格"));
+        items.push({
 
-    if(price<=0)return;
+            name:p.name,
+
+            barcode:code,
+
+            price:p.price,
+
+            qty:1,
+
+            recipe:p.recipe,
+
+            paypay:p.paypay
+
+        });
+
+        saveItems();
+
+        render();
+
+        alert("登録済み商品を追加しました");
+
+        return;
+
+    }
+
+    const name = prompt("商品名");
+
+    if(!name) return;
+
+    const price = Number(prompt("価格"));
+
+    if(price<=0) return;
+
+    const recipe = confirm("レシチャレ対象？");
+
+    const paypay = confirm("PayPay対象？");
+
+    productDB[code]={
+
+        name,
+
+        price,
+
+        recipe,
+
+        paypay
+
+    };
 
     items.push({
 
-        name:name,
+        name,
 
         barcode:code,
 
-        price:price,
+        price,
 
         qty:1,
 
-        recipe:false,
+        recipe,
 
-        paypay:false
+        paypay
 
     });
 
     saveItems();
 
     render();
+
+}
+
 
 }
     
