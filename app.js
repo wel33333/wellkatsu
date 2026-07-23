@@ -119,6 +119,16 @@ ${item.paypay ? " 💳PayPay" : ""}
                 <button onclick="minus(${index})">－</button>
                 <button onclick="plus(${index})">＋</button>
                 <button onclick="removeItem(${index})">🗑 削除</button>
+<br><br>
+
+<label>レシチャレ還元</label>
+
+<input
+type="number"
+value="${item.cashback}"
+onchange="updateCashback(${index}, this.value)"
+style="width:90px;"> pt
+                
             </div>
             `;
 
@@ -165,7 +175,20 @@ const paypay = recommendedPayPay;
         waon.toLocaleString() + "pt";
 
     document.getElementById("reward").textContent = "0pt";
+let cashbackTotal = 0;
 
+items.forEach(item=>{
+
+    if(item.recipe){
+
+        cashbackTotal += item.cashback * item.qty;
+
+    }
+
+});
+
+document.getElementById("cashbackTotal").textContent =
+    cashbackTotal.toLocaleString() + "pt";
 }
 
 document.getElementById("addButton").addEventListener("click", addItem);
@@ -292,19 +315,19 @@ function startScanner(){
 
     items.push({
 
-        name,
+            name:p.name,
 
-        barcode:code,
+            barcode:code,
 
-        price,
+            price:p.price,
 
-        qty:1,
+            qty:1,
 
-        recipe,
+            recipe:p.recipe,
 
-        paypay
+            paypay:p.paypay
 
-    });
+        });
 
     saveItems();
 function saveSettings() {
@@ -390,3 +413,13 @@ document
     saveSettings();
 
 });
+
+function updateCashback(index, value){
+
+    items[index].cashback = Number(value) || 0;
+
+    saveItems();
+
+    render();
+
+}
